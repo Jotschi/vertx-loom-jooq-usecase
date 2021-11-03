@@ -5,10 +5,10 @@ import static de.jotschi.vertx.loom.db.jooq.tables.User.USER;
 import java.util.UUID;
 import java.util.function.Function;
 
-import io.github.jklingsporn.vertx.jooq.rx.reactivepg.ReactiveRXQueryExecutor;
 import de.jotschi.vertx.loom.db.jooq.tables.pojos.User;
 import de.jotschi.vertx.loom.db.jooq.tables.records.UserRecord;
-import io.reactivex.Single;
+import io.github.jklingsporn.vertx.jooq.rx3.reactivepg.ReactiveRXQueryExecutor;
+import io.reactivex.rxjava3.core.Single;
 
 /**
  * Group related operations. 

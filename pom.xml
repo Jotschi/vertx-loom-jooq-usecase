@@ -14,7 +14,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<postgres.driver.version>42.2.2</postgres.driver.version>
-		<vertx.jooq.version>6.3.0</vertx.jooq.version>
+		<vertx.jooq.version>6.4.0-SNAPSHOT</vertx.jooq.version>
 		<vertx.version>4.2.1-SNAPSHOT</vertx.version>
 	</properties>
 

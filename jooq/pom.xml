@@ -43,7 +43,7 @@
 		</dependency>
 		<dependency>
 			<groupId>io.github.jklingsporn</groupId>
-			<artifactId>vertx-jooq-rx-reactive</artifactId>
+			<artifactId>vertx-jooq-rx3-reactive</artifactId>
 			<version>${vertx.jooq.version}</version>
 		</dependency>
 
@@ -117,7 +117,7 @@
 
 					<!-- Generator parameters -->
 					<generator>
-						<name>io.github.jklingsporn.vertx.jooq.generate.rx.RXReactiveVertxGenerator</name>
+						<name>io.github.jklingsporn.vertx.jooq.generate.rx3.RXReactiveVertxGenerator</name>
 						<database>
 							<name>org.jooq.meta.postgres.PostgresDatabase</name>
 							<includes>.*</includes>

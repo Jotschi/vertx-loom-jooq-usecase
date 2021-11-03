@@ -2,7 +2,7 @@ package de.jotschi.vertx.loom.util;
 
 import java.util.Optional;
 
-import io.reactivex.Maybe;
+import io.reactivex.rxjava3.core.Maybe;
 
 public final class RxUtil {
 

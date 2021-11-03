@@ -95,12 +95,12 @@
 				<version>1.15.3</version>
 			</dependency>
 
+			<!-- RX3 -->
 			<dependency>
-				<groupId>io.reactivex.rxjava2</groupId>
+				<groupId>io.reactivex.rxjava3</groupId>
 				<artifactId>rxjava</artifactId>
-				<version>2.2.21</version>
+				<version>3.0.13</version>
 			</dependency>
-
 
 			<!-- Utilities -->
 			<dependency>

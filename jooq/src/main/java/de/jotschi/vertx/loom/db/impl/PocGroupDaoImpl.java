@@ -1,9 +1,9 @@
 package de.jotschi.vertx.loom.db.impl;
 
-import static de.jotschi.vertx.loom.util.JooqWrapperHelper.unwrap;
-import static de.jotschi.vertx.loom.util.JooqWrapperHelper.wrap;
 import static de.jotschi.vertx.loom.db.jooq.tables.User.USER;
 import static de.jotschi.vertx.loom.db.jooq.tables.UserGroup.USER_GROUP;
+import static de.jotschi.vertx.loom.util.JooqWrapperHelper.unwrap;
+import static de.jotschi.vertx.loom.util.JooqWrapperHelper.wrap;
 
 import java.util.List;
 import java.util.Objects;
@@ -15,8 +15,6 @@ import org.jooq.ResultQuery;
 import de.jotschi.vertx.loom.db.PocGroup;
 import de.jotschi.vertx.loom.db.PocGroupDao;
 import de.jotschi.vertx.loom.db.PocUser;
-import de.jotschi.vertx.loom.util.JooqWrapperHelper;
-import io.github.jklingsporn.vertx.jooq.rx.reactivepg.ReactiveRXQueryExecutor;
 import de.jotschi.vertx.loom.db.jooq.tables.daos.GroupDao;
 import de.jotschi.vertx.loom.db.jooq.tables.daos.UserDao;
 import de.jotschi.vertx.loom.db.jooq.tables.daos.UserGroupDao;
@@ -25,17 +23,19 @@ import de.jotschi.vertx.loom.db.jooq.tables.pojos.User;
 import de.jotschi.vertx.loom.db.jooq.tables.pojos.UserGroup;
 import de.jotschi.vertx.loom.db.jooq.tables.records.UserGroupRecord;
 import de.jotschi.vertx.loom.db.jooq.tables.records.UserRecord;
-import io.reactivex.Completable;
-import io.reactivex.Maybe;
-import io.reactivex.Observable;
-import io.reactivex.Single;
+import de.jotschi.vertx.loom.util.JooqWrapperHelper;
+import io.github.jklingsporn.vertx.jooq.rx3.reactivepg.ReactiveRXQueryExecutor;
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.Maybe;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Single;
 
 public class PocGroupDaoImpl extends GroupDao implements PocGroupDao {
 
   private final UserDao userDao;
   private final UserGroupDao userGroupDao;
 
-  public PocGroupDaoImpl(Configuration configuration, io.vertx.reactivex.sqlclient.SqlClient delegate, UserDao userDao, UserGroupDao userGroupDao) {
+  public PocGroupDaoImpl(Configuration configuration, io.vertx.rxjava3.sqlclient.SqlClient delegate, UserDao userDao, UserGroupDao userGroupDao) {
     super(configuration, delegate);
     this.userDao = userDao;
     this.userGroupDao = userGroupDao;
@@ -119,7 +119,7 @@ public class PocGroupDaoImpl extends GroupDao implements PocGroupDao {
             .set(record)
             .returning(USER.getPrimaryKey().getFieldsArray());
         }).map(rows -> rows.iterator().next())
-          .map(io.vertx.reactivex.sqlclient.Row::getDelegate)
+          .map(io.vertx.rxjava3.sqlclient.Row::getDelegate)
           .map(keyConverter()::apply)
           .map(pk -> userPojo.setUuid(pk));
 

@@ -1,21 +1,21 @@
 package de.jotschi.vertx.loom.db.impl;
 
+import static de.jotschi.vertx.loom.db.jooq.tables.User.USER;
 import static de.jotschi.vertx.loom.util.JooqWrapperHelper.unwrap;
 import static de.jotschi.vertx.loom.util.JooqWrapperHelper.wrap;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import de.jotschi.vertx.loom.db.PocUser;
 import de.jotschi.vertx.loom.db.PocUserDao;
 import de.jotschi.vertx.loom.db.jooq.tables.daos.UserDao;
 import de.jotschi.vertx.loom.db.jooq.tables.pojos.User;
-import io.reactivex.Completable;
-import io.reactivex.Maybe;
-import io.reactivex.Observable;
-import io.reactivex.Single;
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.Flowable;
+import io.reactivex.rxjava3.core.Maybe;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Single;
 
 public class PocUserDaoImpl implements PocUserDao {
 
@@ -39,10 +39,10 @@ public class PocUserDaoImpl implements PocUserDao {
 
   @Override
   public Observable<? extends PocUser> loadUsers() {
-    return userDao.findAll().flatMapObservable(e -> {
-      List<PocUser> list = e.stream().map(u -> wrap(u, PocUserImpl.class)).collect(Collectors.toList());
-      return Observable.fromIterable(list);
-    });
+    Flowable<User> r = userDao.queryExecutor().queryFlowable(dsl -> {
+      return dsl.select().from(USER).coerce(USER);
+    }, 0);
+    return r.toObservable().map(u -> wrap(u, PocUserImpl.class));
   }
 
   @Override

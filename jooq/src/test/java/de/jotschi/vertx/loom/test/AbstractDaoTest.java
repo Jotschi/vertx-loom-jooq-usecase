@@ -18,7 +18,7 @@ import de.jotschi.vertx.loom.option.DatabaseOptions;
 import io.vertx.core.Vertx;
 import io.vertx.pgclient.PgConnectOptions;
 import io.vertx.pgclient.PgPool;
-import io.vertx.reactivex.sqlclient.SqlClient;
+import io.vertx.rxjava3.sqlclient.SqlClient;
 import io.vertx.sqlclient.PoolOptions;
 
 public class AbstractDaoTest {
@@ -57,7 +57,7 @@ public class AbstractDaoTest {
 			.setDatabase(database);
 
 		PgPool client = PgPool.pool(vertx, config, new PoolOptions().setMaxSize(32));
-		return new io.vertx.reactivex.sqlclient.Pool(client);
+		return new io.vertx.rxjava3.sqlclient.Pool(client);
 	}
 
 	private Configuration jooqConfiguration() {

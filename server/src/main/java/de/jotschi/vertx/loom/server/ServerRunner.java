@@ -3,7 +3,6 @@ package de.jotschi.vertx.loom.server;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 import org.jooq.Configuration;
 import org.jooq.SQLDialect;
@@ -13,7 +12,8 @@ import de.jotschi.vertx.loom.db.PocUser;
 import de.jotschi.vertx.loom.db.impl.PocUserDaoImpl;
 import de.jotschi.vertx.loom.db.jooq.tables.daos.UserDao;
 import de.jotschi.vertx.loom.option.DatabaseOptions;
-import io.reactivex.Single;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Single;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -28,7 +28,7 @@ import io.vertx.sqlclient.PoolOptions;
 public class ServerRunner {
 
   private PgPool poolClient;
-  private io.vertx.reactivex.sqlclient.Pool pool;
+  private io.vertx.rxjava3.sqlclient.Pool pool;
   private Vertx vertx;
   private PocUserDaoImpl userDao;
 
@@ -60,7 +60,7 @@ public class ServerRunner {
 
     this.poolClient = PgPool.pool(vertx, config, new PoolOptions().setMaxSize(32));
     Pool p = new Pool(poolClient.getDelegate());
-    this.pool = new io.vertx.reactivex.sqlclient.Pool(p.getDelegate());
+    this.pool = new io.vertx.rxjava3.sqlclient.Pool(p.getDelegate());
 
     UserDao jooqUserDao = new UserDao(jooqConfiguration(), pool);
     this.userDao = new PocUserDaoImpl(jooqUserDao);
@@ -75,7 +75,7 @@ public class ServerRunner {
   private void start() {
     Router router = Router.router(vertx);
     router.route("/users").handler(rc -> {
-      List<String> userUuids = Async.await(loadUserIds());
+      List<String> userUuids = loadUserIds().toList().blockingGet();
       JsonObject response = new JsonObject();
       response.put("userUuids", new JsonArray(userUuids));
       rc.end(response.encodePrettily());
@@ -109,11 +109,8 @@ public class ServerRunner {
     });
   }
 
-  private Future<List<String>> loadUserIds() {
-    return Async.async(() -> {
-      List<String> list = userDao.loadUsers().toList().blockingGet().stream().map(u -> u.getUuid().toString()).collect(Collectors.toList());
-      return list;
-    });
+  private Observable<String> loadUserIds() {
+    return userDao.loadUsers().map(u -> u.getUuid().toString());
   }
 
 }

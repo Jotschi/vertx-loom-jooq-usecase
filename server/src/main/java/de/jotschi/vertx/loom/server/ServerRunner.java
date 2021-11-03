@@ -1,18 +1,19 @@
 package de.jotschi.vertx.loom.server;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 import org.jooq.Configuration;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DefaultConfiguration;
 
-import de.jotschi.vertx.loom.db.PocUserDao;
-import de.jotschi.vertx.loom.db.flyway.FlywayHelper;
+import de.jotschi.vertx.loom.db.PocUser;
 import de.jotschi.vertx.loom.db.impl.PocUserDaoImpl;
 import de.jotschi.vertx.loom.db.jooq.tables.daos.UserDao;
 import de.jotschi.vertx.loom.option.DatabaseOptions;
+import io.reactivex.Single;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -21,15 +22,15 @@ import io.vertx.loom.core.Vertx;
 import io.vertx.loom.ext.web.Router;
 import io.vertx.loom.pgclient.PgPool;
 import io.vertx.loom.sqlclient.Pool;
-import io.vertx.loom.sqlclient.SqlClient;
 import io.vertx.pgclient.PgConnectOptions;
 import io.vertx.sqlclient.PoolOptions;
 
 public class ServerRunner {
 
   private PgPool poolClient;
-  private SqlClient sqlClient;
+  private io.vertx.reactivex.sqlclient.Pool pool;
   private Vertx vertx;
+  private PocUserDaoImpl userDao;
 
   public static void main(String[] args) throws IOException {
     new ServerRunner().init().start();
@@ -48,7 +49,7 @@ public class ServerRunner {
 
     this.vertx = Vertx.vertx();
 
-    FlywayHelper.migrate(options);
+    // FlywayHelper.migrate(options);
 
     PgConnectOptions config = new PgConnectOptions()
       .setHost(options.getHost())
@@ -58,8 +59,11 @@ public class ServerRunner {
       .setDatabase(options.getDatabaseName());
 
     this.poolClient = PgPool.pool(vertx, config, new PoolOptions().setMaxSize(32));
-    this.sqlClient = new Pool(poolClient);
+    Pool p = new Pool(poolClient.getDelegate());
+    this.pool = new io.vertx.reactivex.sqlclient.Pool(p.getDelegate());
 
+    UserDao jooqUserDao = new UserDao(jooqConfiguration(), pool);
+    this.userDao = new PocUserDaoImpl(jooqUserDao);
     return this;
   }
 
@@ -68,17 +72,21 @@ public class ServerRunner {
     return configuration.set(SQLDialect.POSTGRES);
   }
 
-  public PocUserDao userDao() {
-    UserDao userDao = new UserDao(jooqConfiguration(), sqlClient);
-    return new PocUserDaoImpl(userDao);
-  }
-
   private void start() {
     Router router = Router.router(vertx);
-    router.route("/test").handler(rc -> {
-      List<Long> userIds = Async.await(loadUserIds());
+    router.route("/users").handler(rc -> {
+      List<String> userUuids = Async.await(loadUserIds());
       JsonObject response = new JsonObject();
-      response.put("userIds", new JsonArray(userIds));
+      response.put("userUuids", new JsonArray(userUuids));
+      rc.end(response.encodePrettily());
+    });
+
+    // TODO Create a clean route with POST - for now GET will do
+    router.route("/addUser").handler(rc -> {
+      PocUser user = Async.await(createUser());
+      JsonObject response = new JsonObject();
+      response.put("username", user.getUsername());
+      response.put("uuid", user.getUuid().toString());
       rc.end(response.encodePrettily());
     });
 
@@ -90,13 +98,21 @@ public class ServerRunner {
         System.out.println("Server running on port: " + s.result().actualPort());
       }
     });
-
   }
 
-  private Future<List<Long>> loadUserIds() {
+  private AtomicLong counter = new AtomicLong();
+
+  private Future<PocUser> createUser() {
     return Async.async(() -> {
-      System.out.println("Loading IDS");
-      return Arrays.asList(1L, 2L, 3L);
+      Single<? extends PocUser> user = userDao.createUser("dummy_" + counter.incrementAndGet());
+      return user.blockingGet();
+    });
+  }
+
+  private Future<List<String>> loadUserIds() {
+    return Async.async(() -> {
+      List<String> list = userDao.loadUsers().toList().blockingGet().stream().map(u -> u.getUuid().toString()).collect(Collectors.toList());
+      return list;
     });
   }
 

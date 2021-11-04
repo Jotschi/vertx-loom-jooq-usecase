@@ -48,7 +48,6 @@ public class DemoServer {
     this.blockingCode = new BlockingCodeWorkload(this);
     this.httpClient = new HttpClientWorkload(this);
     this.httpServer = new HttpServerWorkload(this);
-
   }
 
   public DemoServer() {

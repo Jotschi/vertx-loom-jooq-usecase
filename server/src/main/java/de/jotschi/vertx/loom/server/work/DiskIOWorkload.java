@@ -5,6 +5,9 @@ import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.loom.core.buffer.Buffer;
 
+/**
+ * Workload which invokes some disk / filesystem API operations 
+ */
 public class DiskIOWorkload extends AbstractWorkload {
 
   public DiskIOWorkload(DemoServer demo) {

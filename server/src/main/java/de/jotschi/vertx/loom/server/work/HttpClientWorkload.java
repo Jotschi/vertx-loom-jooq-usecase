@@ -7,6 +7,9 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.loom.core.Promise;
 import io.vertx.loom.core.http.HttpClient;
 
+/**
+ * Some HTTP client sepcific workloads.
+ */
 public class HttpClientWorkload extends AbstractWorkload {
 
   private HttpClient client;

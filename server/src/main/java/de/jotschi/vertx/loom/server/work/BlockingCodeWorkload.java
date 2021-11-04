@@ -5,6 +5,9 @@ import static io.vertx.lang.loom.Async.async;
 import de.jotschi.vertx.loom.server.DemoServer;
 import io.vertx.core.Future;
 
+/**
+ * Add some blocking code workload. 
+ */
 public class BlockingCodeWorkload extends AbstractWorkload {
 
   public BlockingCodeWorkload(DemoServer demo) {

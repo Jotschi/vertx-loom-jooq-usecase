@@ -14,10 +14,15 @@ The demo provides a Vert.x server which exposes the `/demo` endpoint. Calling th
 
 Example:
 ```java
-Buffer buffer = await(demo().disk().readFile());
-PocUser user = await(demo().db().createUser());
-GameResult result = await(demo().eventbus().playGame());
-String computeResult = await(demo().blockingCode().computeStuff());
+Future<Buffer> diskIo = demo().disk().readFile();
+Future<PocUser> jooq = demo().db().createUser();
+Future<GameResult> game = demo().eventbus().playGame();
+Future<String> blocking = demo().blockingCode().computeStuff();
+…
+Buffer buffer = await(diskIo);
+PocUser user = await(jooq);
+GameResult result = await(game);
+String computeResult = await(blocking);
 ```
 
 The easiest way to run the demo is to invoke the [DemoTest unit test](server/src/test/java/de/jotschi/vertx/loom/DemoTest.java#L34:L44).

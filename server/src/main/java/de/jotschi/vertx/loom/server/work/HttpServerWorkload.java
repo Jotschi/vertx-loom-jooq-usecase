@@ -34,27 +34,31 @@ public class HttpServerWorkload extends AbstractWorkload {
   public void handleDemo(RoutingContext rc) {
     long start = System.currentTimeMillis();
 
-    // Lets call some async apis and use await to wait for the operation.
-    Buffer buffer = await(demo().disk().readFile());
-    PocUser user = await(demo().db().createUser());
-    GameResult result = await(demo().eventbus().playGame());
-    String computeResult = await(demo().blockingCode().computeStuff());
+    Future<Buffer> diskIo = demo().disk().readFile();
+    Future<PocUser> jooq = demo().db().createUser();
+    Future<GameResult> game = demo().eventbus().playGame();
+    Future<String> blocking = demo().blockingCode().computeStuff();
+    Set<Future<String>> ops = new HashSet<>();
+    for (int i = 0; i < 20; i++) {
+      ops.add(demo().blockingCode().computeStuff());
+    }
+    Observable<String> usersObs = demo().db().loadUserIds();
 
+    // Lets call some async apis and use await to wait for the operation.
+    Buffer buffer = await(diskIo);
+    PocUser user = await(jooq);
+    GameResult result = await(game);
+    String computeResult = await(blocking);
+
+    // Async operations can also be invoked first and waited for in-parallel
+    for (Future<String> op : ops) {
+      await(op);
+    }
     System.out.println("[Database] User created: " + user.getUuid());
     System.out.println("[Disk IO] Read: " + buffer.toString().length() + " characters from pom.xml");
     System.out.println("[Eventbus] Game Result: " + result);
     System.out.println("[Blocking Code] Result: " + computeResult);
 
-    // Async operations can also be invoked first and waited for in-parallel
-    Set<Future<String>> ops = new HashSet<>();
-    for (int i = 0; i < 20; i++) {
-      ops.add(demo().blockingCode().computeStuff());
-    }
-    for (Future<String> op : ops) {
-      await(op);
-    }
-
-    Observable<String> usersObs = demo().db().loadUserIds();
     List<String> userUuids = await(usersObs);
 
     long dur = System.currentTimeMillis() - start;

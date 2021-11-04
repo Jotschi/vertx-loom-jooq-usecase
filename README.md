@@ -7,7 +7,7 @@ This project contains a usecase study for the vertx-loom wrapper API.
 The demo provides a Vert.x server which exposes the `/demo` endpoint. Calling this endpoint will:
 
 * Disk IO: Read the pom.xml
-* Jooq: Create a user in the database
+* JOOQ: Create a user in the database
 * Eventbus: Dispatch a eventbus event to tigger a game. The eventbus handler will query another server endpoint via a http client call for a number. A reply handler with the result will be invoked.
 * Blocking Code: A blocking code section will be invoked via Async/Await
 * JOOQ: A list of user Ids will be read from the server

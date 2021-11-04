@@ -20,7 +20,7 @@ GameResult result = await(demo().eventbus().playGame());
 String computeResult = await(demo().blockingCode().computeStuff());
 ```
 
-The easiest way to run the demo is to invoke the [DemoTest unit test](src/test/java/de/jotschi/vertx/loom/DemoTest.java#L34:L44).
+The easiest way to run the demo is to invoke the [DemoTest unit test](blob/master/server/src/test/java/de/jotschi/vertx/loom/DemoTest.java#L34:L44).
 
 ## Important Notice
 
